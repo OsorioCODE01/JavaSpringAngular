@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,7 +35,7 @@ public class LibrosController {
      */
     @GetMapping("obtenerLibro")
     public ResponseEntity< LibroDTO> obtenerLibro(@RequestParam("id") Integer id) {
-        return new ResponseEntity<>(libroServicio.obtenerLibro(id), HttpStatus.OK) ;
+        return new ResponseEntity<>(libroServicio.obtenerLibro(id), HttpStatus.OK);
     }
 
     @GetMapping("obtenerLibrosPorEditorial")
@@ -45,13 +44,13 @@ public class LibrosController {
         return new ResponseEntity<>(libroServicio.obtenerLibrosPorEditorial(edi),HttpStatus.FOUND);
     }
 
-    @DeleteMapping
-   public LibroDTO borrarLibro(@RequestBody LibroDTO libroDTO){
-        return  libroServicio.borrarLibro(libroDTO);
+    @DeleteMapping("borrarLibro")
+   public ResponseEntity<LibroDTO> borrarLibro(@RequestParam("id") Integer id){
+        return new ResponseEntity<>(libroServicio.borrarLibro(id), HttpStatus.OK);
     }
 
-    @PutMapping
-    public  LibroDTO editarLibro(@RequestBody LibroDTO libroDTO){
-        return libroServicio.editarLibro(libroDTO);
+    @PutMapping("editarLibro")
+    public ResponseEntity<LibroDTO>  editarLibro(@RequestParam("id") Integer id){
+        return new ResponseEntity<>(libroServicio.editarLibro(id),HttpStatus.OK);
     }
 }

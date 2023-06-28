@@ -10,6 +10,7 @@ import gia.utp.primerproyecto.web.dto.response.LibroEditorialResponse;
 import gia.utp.primerproyecto.web.exceptions.type.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,7 +51,8 @@ public class LibroServicioImpl implements LibroServicio, LibroVentaFacade {
 
     @Override
     public LibroDTO obtenerLibro(Integer id) {
-        LibroEntity  libroEntity = libroRepository.findById(id).get();
+        LibroEntity  libroEntity = libroRepository.findById(id)
+                .orElseThrow( () -> new BadRequestException("Libro No Econtrado"));
         return modelMapper.map(libroEntity, LibroDTO.class);
     }
 
@@ -60,24 +62,32 @@ public class LibroServicioImpl implements LibroServicio, LibroVentaFacade {
         List<LibroEntity> libroEntities = libroRepository.findAllByEditorial(edi)
                 .orElseThrow( () -> new BadRequestException("No existen libros bajo esa editorial" + edi));
 
-
         List<LibroEditorialResponse> responseList = libroEntities.stream()
                 .map(libroEntity -> modelMapper.map(libroEntity, LibroEditorialResponse.class))
                 .collect(Collectors.toList()); // Esta monda vuelve el stream una lista, aletoso
-
         return responseList;
     }
 
     @Override
-    public LibroDTO borrarLibro(LibroDTO libroDTO) {
-
-        return null;
+    public LibroDTO borrarLibro(Integer id) {
+        LibroEntity libroEntity = libroRepository.findById(id)
+                .orElseThrow(() ->new BadRequestException("Libro no encontrado para su borrado"));
+        libroRepository.delete(libroEntity);
+        return modelMapper.map(libroEntity, LibroDTO.class);
     }
 
     @Override
-    public LibroDTO editarLibro(LibroDTO libroDTO) {
+    public LibroDTO editarLibro(Integer id) {
+        LibroEntity  libroEntity = libroRepository.findById(id)
+                .orElseThrow( () -> new BadRequestException("Libro No Econtrado"));
 
-        return null;
+        libroEntity.setNombre("MeEditaron");
+
+        libroEntity.setAutor("LibritosSA");
+
+        libroEntity =  libroRepository.save(libroEntity);
+
+        return modelMapper.map(libroEntity, LibroDTO.class);
     }
 
 

@@ -11,9 +11,9 @@ public interface LibroServicio { //Interfaz clase abstracta
 
     LibroDTO obtenerLibro(Integer id);
 
-    LibroDTO borrarLibro(LibroDTO libroDTO);
+    LibroDTO borrarLibro(Integer id);
 
-    LibroDTO editarLibro(LibroDTO libroDTO);
+    LibroDTO editarLibro(Integer id);
 
     List<LibroEditorialResponse> obtenerLibrosPorEditorial(String edi);
 }
