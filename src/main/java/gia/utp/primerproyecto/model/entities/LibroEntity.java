@@ -4,11 +4,13 @@ package gia.utp.primerproyecto.model.entities;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "libro")
@@ -17,11 +19,9 @@ public class LibroEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "nombre_libro")
-    private String nombreLibro;
+    private String nombre;
 
-    @Column(name = "autor_libro")
-    private String autorLibro;
+    private String autor;
 
     private String editorial;
 }

@@ -5,55 +5,67 @@ import gia.utp.primerproyecto.model.repository.LibroRepository;
 import gia.utp.primerproyecto.service.interfaces.LibroServicio;
 import gia.utp.primerproyecto.service.interfaces.LibroVentaFacade;
 import gia.utp.primerproyecto.web.dto.LibroDTO;
-import lombok.AllArgsConstructor;
+
+import gia.utp.primerproyecto.web.dto.response.LibroEditorialResponse;
+import gia.utp.primerproyecto.web.exceptions.type.BadRequestException;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@AllArgsConstructor
+
 @Service
 public class LibroServicioImpl implements LibroServicio, LibroVentaFacade {
 
+    @Autowired
+    private LibroRepository libroRepository;/*Otra inyeccion mas de dependencias, esta es la del repositorio, nos facilita el manejo de la base de datos
+    sin necesariamente usar sentencias SQL para interactuar con la base de datos.*/
 
-    private LibroRepository libroRepository;
+    @Autowired
+    private ModelMapper modelMapper; /*Este modelmapper requiere de un archivo de configuracion que ayuda a que sring pueda gestinarlo,
+     ya que @Auyowired se encarga de hacer las inyecciones de dependecias necesarias*/
 
-    //private EntityManager entityManager;
 
-    private ModelMapper modelMapper;
     @Override
     public LibroDTO crearLibro(LibroDTO libroDTO){
-       // if(libroDTO.getNombre().isEmpty()){ return null;}
-        LibroEntity libroEntity = modelMapper.map(libroDTO, LibroEntity.class);
-         /*   LibroEntity libroEntity = LibroEntity.builder()
-                .nombreLibro(libroDTO.getNombre())
-                .autorLibro(libroDTO.getAutor())
-                .editorial(libroDTO.getEditorial())
-                .build();
-        */
+        if(libroDTO.getNombre().isEmpty()) throw new BadRequestException("Los libros no pueden tener el nombre vacio");
 
-        //entityManager.clear();
+        //Sentencia de comprobacion, en la practica aqui abrian validaciones para evitar guardar informacion mal indicada.
+
+        LibroEntity libroEntity = modelMapper.map(libroDTO, LibroEntity.class);
+
+        /* Creamos un Objeto de tipo LibroEntity que podamos guardar en la base de datos
+        esto lo hacemos a partir de mapear la informacion del objeto DTO que solo tiene la informacion que llega, entonces mapeamos el libro de tipo DTO a un Entity
+        con esto ya podemos usar el Entity para funciones/metodos de JPA*/
 
         libroEntity = libroRepository.save(libroEntity);
 
-        return modelMapper.map(libroEntity, LibroDTO.class);
-               /*
-               * LibroDTO.builder()
-                .id(libroEntity.getId())
-                .autor(libroEntity.getAutorLibro())
-                .nombre(libroEntity.getNombreLibro())
-                .editorial(libroEntity.getEditorial())
-                .build();
-                * */
+        /* Una vez tenemos el Entity, podemos utlizar metodos de repostirio con ayuda de la funciones que nos ofrece jpa para el manejo de entidades
+        * entonces con ayuda de la interfaz que hereda dichas funciones, utilizamos el metodo save, que guarda la informacion en la DB*/
 
+        return modelMapper.map(libroEntity, LibroDTO.class); //Finalmente mapeamos el Entity a  DTO para poder retornarlo, puesto que el metodo es de tipo DTO
     }
 
     @Override
     public LibroDTO obtenerLibro(Integer id) {
+        LibroEntity  libroEntity = libroRepository.findById(id).get();
+        return modelMapper.map(libroEntity, LibroDTO.class);
+    }
 
-        return null;
+    @Override
+    public List<LibroEditorialResponse> obtenerLibrosPorEditorial(String edi) {
+        //Validacion con exception
+        List<LibroEntity> libroEntities = libroRepository.findAllByEditorial(edi)
+                .orElseThrow( () -> new BadRequestException("No existen libros bajo esa editorial" + edi));
+
+
+        List<LibroEditorialResponse> responseList = libroEntities.stream()
+                .map(libroEntity -> modelMapper.map(libroEntity, LibroEditorialResponse.class))
+                .collect(Collectors.toList()); // Esta monda vuelve el stream una lista, aletoso
+
+        return responseList;
     }
 
     @Override
@@ -67,6 +79,8 @@ public class LibroServicioImpl implements LibroServicio, LibroVentaFacade {
 
         return null;
     }
+
+
 
     @Override
     public LibroDTO venderLibro(Integer idLibro, Double precioLibro) {

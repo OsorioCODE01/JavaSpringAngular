@@ -1,6 +1,9 @@
 package gia.utp.primerproyecto.service.interfaces;
 
 import gia.utp.primerproyecto.web.dto.LibroDTO;
+import gia.utp.primerproyecto.web.dto.response.LibroEditorialResponse;
+
+import java.util.List;
 
 public interface LibroServicio { //Interfaz clase abstracta
 
@@ -11,4 +14,6 @@ public interface LibroServicio { //Interfaz clase abstracta
     LibroDTO borrarLibro(LibroDTO libroDTO);
 
     LibroDTO editarLibro(LibroDTO libroDTO);
+
+    List<LibroEditorialResponse> obtenerLibrosPorEditorial(String edi);
 }
